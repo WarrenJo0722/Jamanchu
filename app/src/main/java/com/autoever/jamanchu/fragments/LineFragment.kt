@@ -1,18 +1,118 @@
 package com.autoever.jamanchu.fragments
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.autoever.jamanchu.R
+import com.autoever.jamanchu.activities.LineActivity
+import com.autoever.jamanchu.api.RetrofitInstance
+import com.autoever.jamanchu.models.Line
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LineFragment : Fragment() {
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: LineAdapter
+    private val lines = mutableListOf<Line>()
+    private lateinit var floatingActionButton: FloatingActionButton
+
+    companion object {
+        private const val REQUEST_CODE_ADD_LINE = 100
+        private const val REQUEST_CODE_EDIT_LINE = 101
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_line, container, false)
+        val view = inflater.inflate(R.layout.fragment_line, container, false)
+
+        floatingActionButton = view.findViewById(R.id.floatingActionButton)
+        floatingActionButton.setOnClickListener {
+            val intent = Intent(requireContext(), LineActivity::class.java)
+            startActivityForResult(intent, REQUEST_CODE_ADD_LINE) // 새 라인 추가
+        }
+
+        // 리사이클러뷰
+        recyclerView = view.findViewById(R.id.recyclerView)
+
+        adapter = LineAdapter(lines)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(context) // 리니어 레이아웃 매니저: 리니어 하게 리스트 뿌려준다.
+
+        fetchLines()
+        return view
+    }
+
+    fun fetchLines() {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitInstance.api.getLines()
+                Log.d("asdf", "3")
+                if (response.isSuccessful && response.body() != null) {
+                    withContext(Dispatchers.Main) {
+                        Log.d("asdf", "4")
+                        lines.clear()
+                        lines.addAll(response.body()!!)
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        Log.d("asdf", "1")
+
+        if (resultCode == AppCompatActivity.RESULT_OK && (requestCode == REQUEST_CODE_ADD_LINE)) {
+            Log.d("asdf", "2")
+            fetchLines()
+        }
     }
 }
+
+class LineAdapter(
+    private val lines: List<Line>
+) : RecyclerView.Adapter<LineAdapter.LineViewHolder>() {
+    class LineViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val textView: TextView = view.findViewById(R.id.textView)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LineViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_line, parent, false)
+        return LineViewHolder(view)
+    }
+
+    override fun getItemCount(): Int {
+        return lines.size
+    }
+
+    override fun onBindViewHolder(holder: LineViewHolder, position: Int) {
+        val line = lines[position]
+        holder.textView.text = line.line
+    }
+}
+
+
+
+
+
+
+
+

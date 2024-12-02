@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.autoever.jamanchu.R
 import com.autoever.jamanchu.models.User
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -96,6 +97,10 @@ class MyAdapter(private val users: List<User>) : RecyclerView.Adapter<MyAdapter.
         val user = users[position]
         holder.textViewNick.text = user.nickname
         holder.textViewIntroduce.text = user.introduction
+        Glide.with(holder.itemView.context)
+            .load(user.image) // 불러올 이미지의 URL 또는 URI
+            .placeholder(R.drawable.user)
+            .into(holder.imageView) // 이미지를 표시할 ImageView
     }
 
     override fun getItemCount() = users.size
