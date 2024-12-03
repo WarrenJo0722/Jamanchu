@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.autoever.jamanchu.R
+import com.autoever.jamanchu.activities.FriendActivity
 import com.autoever.jamanchu.activities.IntroActivity
 import com.autoever.jamanchu.models.Gender
 import com.autoever.jamanchu.models.User
@@ -37,6 +38,13 @@ class MyFragment : Fragment() {
             // 인트로 화면으로 이동
             val intent = Intent(requireContext(), IntroActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // 이전 액티비티 제거
+            startActivity(intent)
+        }
+
+        // 내가 추가한 친구
+        val layoutFriend = view.findViewById<View>(R.id.layoutFriend)
+        layoutFriend.setOnClickListener {
+            val intent = Intent(requireContext(), FriendActivity::class.java)
             startActivity(intent)
         }
 
