@@ -13,6 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.autoever.jamanchu.R
 import com.autoever.jamanchu.models.Message
@@ -148,6 +149,12 @@ class ChatActivity : AppCompatActivity() {
                 editText.setText("")
             }
         }
+
+        // 리사이클러뷰 초기화
+        recyclerView = findViewById(R.id.recyclerView)
+        messageAdapter = MessageAdapter(messageList)
+        recyclerView.adapter = messageAdapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
     }
 
     private fun setupMessageListener(chatRoomId: String) {
